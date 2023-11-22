@@ -1,0 +1,64 @@
+local WebhookURL = "" -- make a webhook and put yours here
+local Webhook = {}
+local Player = game.Players.LocalPlayer
+local WhitelistedHWID = {"ca0cdd4b5a0d175eef28a6e65d41cf3c"} -- put hwids of ppl you wanna wl here
+function Webhook:SendWl(Web, Value, Stuff)
+    local Data = {
+        ["content"] = '',
+        ["username"] = "Meno's Whitelist System",
+        ["avatar_url"] = "",-- discord embed link 
+        ["embeds"] = {{
+            ["title"] = Stuff.Title.Main,
+            ["description"] = Stuff.Title.Description,
+            ["type"] = "rich",
+            ["color"] = tonumber(0xffffff),
+            ["fields"] = {
+                {
+                    ["name"] = Stuff.MessageTitle.Title,
+                    ["value"] = Stuff.MessageTitle.Value,
+                    ["inline"] = true
+                }
+            }}}
+    }
+    local EncodedData = game:GetService("HttpService"):JSONEncode(Data)
+    local Headers = {
+        ["content-type"] = "application/json"
+    }
+    RequestHTTP = http_request or request or HttpPost or syn.request
+    local WtfIsThisShit = {Url = Web, Body = EncodedData, Method = "POST", Headers = Headers}
+    RequestHTTP(WtfIsThisShit)
+end
+local http_request = (syn and syn.request) or http_request or request or httprequest or httpRequest or Request;
+
+local body = http_request({Url = 'https://httpbin.org/get'; Method = 'GET'}).Body;
+local decoded = game:GetService('HttpService'):JSONDecode(body)
+local headers = decoded.headers
+local hwid;
+
+for i,v in pairs(headers) do
+     if type(i)=="string" and i:lower():match("fingerprint") then hwid = v end
+end
+if not table.find(WhitelistedHWID, hwid) then
+    Webhook:SendWl(WebhookURL, 'hello xd', {
+        Title = {
+            Main = "Unwhitelisted user ran your script: " .. Player.Name,
+            Description = "Unwhitelisted user :("
+        },
+        MessageTitle = {
+            Title = "More Info",
+            Value = "Hwid is:  " .. hwid .. " lel"
+        }
+    })
+   Player:Kick("Bad boy")
+   else
+    Webhook:SendWl(WebhookURL, 'hello xd', {
+        Title = {
+            Main = Player.Name .. " Ran your script",
+            Description = "Whitelisted user :D"
+        },
+        MessageTitle = {
+            Title = "More Info",
+            Value = "Hwid is:  " .. hwid
+        }
+    })
+   end
